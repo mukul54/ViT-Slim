@@ -195,4 +195,4 @@ dependencies:
     - websocket-client==1.5.1
     - werkzeug==2.2.3
     - zipp==3.15.0
-prefix: /nfs/users/ext_arnav.chavan/miniconda3/envs/fact
+

@@ -98,9 +98,11 @@ class ImageFilelist(data.Dataset):
         return len(self.imlist)
 
 
-def get_data(name, evaluate=False, batch_size=64, args=None):
+def get_data(name, evaluate=False, batch_size=64, args=None, root_dir=None):
     if name in _VTAB_LIST:
-        root = 'data/vtab-1k/' + name
+        if root_dir is None:
+            root_dir = 'data/vtab-1k'
+        root = os.path.join(root_dir, name)
         transform = transforms.Compose([
             transforms.Resize((224, 224), interpolation=3),
             transforms.ToTensor(),

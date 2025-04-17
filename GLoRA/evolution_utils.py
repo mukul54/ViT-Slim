@@ -136,7 +136,7 @@ class EvolutionSearcher(object):
         self.set_config(config)
         acc = Accuracy()
         for batch in self.val_loader:
-            x, y = batch[0].cuda(), batch[1].cuda()
+            x, y = batch[0].to(self.device), batch[1].to(self.device)
             out = self.model(x).data
             acc.update(out.argmax(dim=1).view(-1), y, 1)
 

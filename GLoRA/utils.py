@@ -32,12 +32,19 @@ def set_seed(seed=0):
 @torch.no_grad()
 def save(args, model):
     model.eval()
+    # Store original device
+    original_device = next(model.parameters()).device
+    
+    # Move to CPU for saving
     model = model.cpu()
     trainable = {}
     for n, p in model.named_parameters():
         if any([x in n for x in ['A', 'B', 'C', 'D', 'E', 'head']]):
             trainable[n] = p.data
     torch.save(trainable, args.save_path + args.dataset + '.pt')
+    
+    # Move back to original device
+    model = model.to(original_device)
 
 def load(args, vit):
     weights = torch.load(args.load_path + args.dataset + '.pt')

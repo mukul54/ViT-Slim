@@ -1,4 +1,5 @@
 import torch
+import os
 from timm.models import create_model
 from argparse import ArgumentParser
 from data import *
@@ -23,16 +24,27 @@ if __name__ == '__main__':
     parser.add_argument('--param-limits', type=float, default=1.00)
     parser.add_argument('--min-param-limits', type=float, default=0)
     parser.add_argument('--rank', type=int, default=4)
+    parser.add_argument('--model_path', type=str, default='/l/users/mukul.ranjan/glora/models/ViT-B_16.npz')
+    parser.add_argument('--root_dir', type=str, default='/l/users/mukul.ranjan/glora/data')
+    parser.add_argument('--learning-rate', type=float, default=5e-4, help='Learning rate for training')
     args = parser.parse_args()
     seed = args.seed
     set_seed(seed)
-    device = torch.device('cuda:0')
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
+        print('Warning: CUDA is not available, using CPU instead. Performance will be significantly slower.')
     name = args.dataset
     args.best_acc = 0
     Path(args.save_path).mkdir(parents=True, exist_ok=True)
-    vit = create_model(args.model, checkpoint_path='./ViT-B_16.npz', drop_path_rate=0.1)
+    # Use model path from args
+    model_path = args.model_path
+    vit = create_model(args.model, checkpoint_path=model_path, drop_path_rate=0.1)
     set_glora(vit, args.rank)
-    train_dl, test_dl = get_data(name)
+    # Use root directory from args
+    root_dir = args.root_dir
+    train_dl, test_dl = get_data(name, root_dir=os.path.join(root_dir, 'vtab-1k'))
 
     vit.reset_classifier(get_classes_num(name))
     vit = load(args, vit)
